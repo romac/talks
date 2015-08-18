@@ -1,38 +1,77 @@
-% Software verification in Scala with Leon
+% Formal verification in Scala with Leon
 % Romain Ruetschi, EPFL
 % August 2015
 
-# What is software verification?
+## Outline
 
-## What is software verification?
+1. Formal verification
+2. A few words about Scala
+3. Leon, a verification system for Scala
+4. Verification conditions
+5. Demo
+6. Under the hood
+7. SMT solver
 
-Software verification aims at making software safer and more reliable.
+# Formal verification
 
-It does so by verifying statically that a program confirms to a given specification and that it cannot crash at run-time.
+## Formal verification
 
-# What is Leon?
+Traditionally, errors in hardware and software have been discovered empirically, by testing them in many possible situations.
 
-## What is Leon?
+The number of situations to account for is usually so large that it becomes impractical.
 
-Leon is a verification, repair and synthesis system for Scala.
+Formal verification is an alternative that involves trying to prove mathematically that a computer system will function as intended.
 
-## What is Leon?
+## Formal verification
 
-Leon takes as input a Scala source file, and generates individual verification conditions corresponding to different properties of the program.
+A lot of hardware companies rely extensively on formal verification, eg. Intel.
 
-It then tries to prove or disprove (by yielding a counter-example) that the verification conditions hold.
+But it can also be applied to cryptographic protocols, digital circuits, **software**, etc.
 
-# Verification
+## Formal verification of software
+### Formal verification of software
 
-## Verification
+Process of proving that a program satisfies a formal specification of its behavior, thus making the program safer and more reliable.
+
+Catches bugs such as integer overflows, divide-by-zero, out-of-bounds array accesses, buffer overflows, etc.
+
+But also helps making sure that an algorithm is properly implemented.
+
+## Formal verification of software
+
+![](http://static.blog.local.ch/1397205732/news_blog_heartbleed_crossed.png)
+
+# A few words about Scala
+
+## A few words about Scala
+
+- Statically typed programming language.
+- Runs on the Java Virtual Machine.
+- Invented at EPFL by Prof. Martin Odersky.
+- Version 1.0 released in 2004.
+- In use at companies such as: Twitter, UBS, LinkedIn, MUFG, Geisha Tokyo Entertainment, M3, etc.
+
+# Leon, a verification system for Scala
+
+## Leon, a verification system for Scala
+
+Leon takes as input a Scala source file, and generates individual *verification conditions* corresponding to different properties of the program.
+
+It then tries to prove or disprove that the verification conditions hold.
+
+# Verification conditions
+
+## Verification conditions
 ### Pre- and post-conditions
 
 ```scala
 def neg(x: Int): Int = {
   require(x >= 0)
   -x
-} ensuring(res => res <= 0)
+} ensuring(_ <= 0)
 ```
+
+Leon will try to prove that the post-condition always holds, assuming that the pre-condition does hold.
 
 ## Verification
 ### Array access safety
@@ -41,16 +80,16 @@ For each array variable, Leon carries along a symbolic information on its length
 
 This information is used to prove that each expression used as an index in the array is both positive and strictly smaller than its length.
 
-## Verification
+## Verification conditions
 ### Pattern matching exhaustiveness
 
-Takes pre-conditions into account to verify that pattern matches are exhaustive.
+Leon takes pre-conditions into account to verify that pattern matches are exhaustive.
 
 ```scala
 def getHead(l: List): Int = {
-  require(!l.isInstanceOf[Nil])
+  require(l != Nil)
   l match {
-    case Cons(x, _) => x
+    case x :: _ => x
   }
 }
 ```
@@ -60,41 +99,57 @@ def getHead(l: List): Int = {
 
 Leon can automatically repair your program if it doesn't satisify its specification.
 
-Moreover, it can also synthesize code from a specification!
+More importantly, it can also synthesize code from a specification!
 
-# Demo
+It does so by attempting to find a counter-example to the claim that no  program satisfying the given specification exists.
+
+# Demo: [leon.epfl.ch](https://leon.epfl.ch#link/5cecb606534fbf624d268c5d3c77b1b2-1)
 
 # Under the hood
 
 ## Under the hood
 
-Leon is itself written in Scala
+Leon is itself written in Scala.
+
+It delegates parsing and typechecking to the Scala compiler.
+
+The AST it gets from `scalac` is then converted to a *PureScala* AST.
 
 ## Under the hood
 
-It makes use of the Scala compiler to parse input files and typecheck programs.
+This AST then goes through a number of transformations, before either of the verification, repair or synthesis phases kick in.
 
 ## Under the hood
 
-Then the Scala AST is converted to a PureScala AST.
-
-## Under the hood
-
-A lot of black magic (to me) happens.
-
-## Under the hood
-
-Most of the hard work required to prove or disprove various properties of the program is delegated to a SMT solver.
+Most of the hard work required to prove or disprove various properties of the program is delegated to an SMT solver.
 
 ## SMT solver
 
-SMT stands for Satisfiability Modulo Theories: First-order logic formulas over various *theories* such as real numbers, integers, lists, arrays, ADTs, and others.
+SMT stands for Satisfiability Modulo Theories.
 
-A SMT solver tries to either prove that a given formula holds, or yields a counter-example.
+An SMT instance is a first-order logic formulas over various *theories* such as real numbers, integers, lists, arrays, ADTs, and others.
 
 ## SMT solver
 
-Leon can make use of different SMT solvers, such as [Z3]() or [CVC4](), thanks to the SMT-Lib standard.
+Verification conditions are translated to an SMT instance, then fed to the SMT solver, which attempts to either prove it, or yield a counter-example.
+
+# Learn more about Leon
+
+## Learn more about Leon
+
+- [http://leon.epfl.ch]()
+- [http://leon.epfl.ch/doc]()
+- [http://lara.epfl.ch/w/leon]()
+- [https://github.com/epfl-lara/leon]()
+
+# Thank you!
+
+## Contact
+
+If you have any questions or just want to get in touch:
+
+Twitter: [\@\_romac](https://twitter.com/_romac)  
+GitHub: [\@romac](https://github.com/romac)
 
 # Bachelor semester project
 
@@ -163,17 +218,3 @@ def double(x: Any1): Any1 = x match {
 double(Any1Int(42))
 ```
 
-# Resources
-
-## Resources
-
-- [http://leon.epfl.ch]()
-- [http://leon.epfl.ch/doc]()
-- [http://lara.epfl.ch/w/leon]()
-- [https://github.com/epfl-lara/leon]()
-
-# Thank you!
-
-## Thank you!
-
-If you have any questions or just want to get in touch, I am [@\_romac](https://twitter.com/_romac) on Twitter.
