@@ -1,0 +1,3 @@
+[submodule "2014-11-RustWorkshop"]
+	path = 2014-11-RustWorkshop
+	url = https://github.com/HackEPFL/rust-workshop-slides
