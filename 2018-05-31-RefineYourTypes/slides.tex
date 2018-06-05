@@ -1,0 +1,384 @@
+\PassOptionsToPackage{unicode=true}{hyperref} % options for packages loaded elsewhere
+\PassOptionsToPackage{hyphens}{url}
+
+
+\documentclass[ignorenonframetext,]{beamer}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{caption label separator}{: }
+\setbeamertemplate{itemize items}[square]
+\setbeamercolor{caption name}{fg=normal text.fg}
+\beamertemplatenavigationsymbolsempty
+
+\usepackage{bibentry}
+
+\usepackage{lmodern}
+\usepackage{stmaryrd}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provides euro and other symbols
+\else % if luatex or xelatex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+\usetheme[]{CambridgeUS}
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage[]{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\usepackage{hyperref}
+\hypersetup{
+            pdftitle={Refine your types!},
+            pdfauthor={Romain Ruetschi},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\newif\ifbibliography
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+\widowpenalties 1 10000
+\raggedbottom
+\setbeamertemplate{part page}{
+\centering
+\begin{beamercolorbox}[sep=16pt,center]{part title}
+  \usebeamerfont{part title}\insertpart\par
+\end{beamercolorbox}
+}
+\setbeamertemplate{section page}{
+\centering
+\begin{beamercolorbox}[sep=12pt,center]{part title}
+  \usebeamerfont{section title}\insertsection\par
+\end{beamercolorbox}
+}
+\setbeamertemplate{subsection page}{
+\centering
+\begin{beamercolorbox}[sep=8pt,center]{part title}
+  \usebeamerfont{subsection title}\insertsubsection\par
+\end{beamercolorbox}
+}
+\useinnertheme{rectangles}
+\useoutertheme{infolines}
+\definecolor{darkred}{rgb}{0.8,0,0}
+\usecolortheme[named=darkred]{structure}
+
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{listings,multicol}
+\usepackage{lstscala}
+
+\lstdefinelanguage{PureScala}{ % Using `Scala` result in a infinite recursion
+  style=scala-color,
+  morekeywords={[2]Unit,Boolean,Byte,Int,BigInt,String,Char,Option,List,true,false}
+}
+
+\newcommand{\scala}[1]{\text{\lstinline[language=PureScala]|#1|}}
+
+% Env for short code: no label, no caption and "inlined" with a box
+\lstnewenvironment{Code}[1]
+    {
+      \lstset{
+        language=#1,
+        basicstyle=\ttfamily,
+        frame=trBL % box the frame & double line on bottom and left side
+      }
+    }
+    {
+    }
+
+
+\title{Refine your types!}
+\author{Romain Ruetschi}
+\date{31.05.2018}
+
+\AtBeginSection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center]{title}
+    \usebeamerfont{title}\secname\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\frame{
+  \frametitle{Two words about me}
+
+  Hi, my name is Romain Ruetschi, but you can also call me Romac.\\
+  \vspace{10pt}
+  I am usually found online under various spellings of ``romac''.\\
+  \vspace{20pt}
+  \begin{itemize}
+  \setlength{\itemindent}{5em}
+  \item[Twitter:]  \url{https://twitter.com/_romac}
+  \item[GitHub:]   \url{https://github.com/romac}
+  \item[Homepage:] \url{https://romac.me}
+  \end{itemize}
+}
+
+\begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center]{title}
+    \usebeamerfont{title}Refinement types\par%
+  \end{beamercolorbox}
+  \vfill
+\end{frame}
+
+\section[Outline]{}
+\frame{
+  \frametitle{Refinement types} % TODO: Remove outline from TOC
+  \tableofcontents
+}
+
+\section{A quick introduction}
+
+\frame
+{
+  \frametitle{Types}
+  
+  $$\scala{Int}$$ \pause
+  $$\scala{Boolean}$$ \pause
+  $$\scala{List[Int]}$$ \pause
+  $$\scala{List[A]} \rightarrow \scala{Int}$$
+}
+
+\frame
+{
+  \frametitle{Types}
+  
+  $$3: \scala{Int}$$ \pause
+  $$\scala{true}: \scala{Boolean}$$ \pause
+  $$\scala{List}(1,2,3): \scala{List[Int]}$$ \pause
+  $$\scala{(xs: List[A]) => xs.length}: \scala{List[A]} \rightarrow \scala{Int}$$
+}
+
+\frame
+{
+  \frametitle{Refinement types}
+  
+  $$\{\ x: T\ |\ p\ \}$$
+}
+
+\frame
+{
+  \frametitle{Refinement types}
+  
+  $$\{\ n: \scala{Int}\ |\ n > 0  \ \}$$ \pause
+  $$\{\ xs: \scala{List[A]}\ |\ \scala{!$xs$.isEmpty} \ \}$$ \pause
+  $$\{\ t: \scala{Tree}\ |\ \scala{isBalanced($t$)} \ \}$$
+}
+
+\frame
+{
+  \frametitle{Refinement types}
+  
+  $$\{\ xs: \scala{List[A]}\ |\ \scala{$xs$.length} \not= 0 \} \rightarrow A$$
+  \vspace{20pt}
+  \pause
+  $$\scala{List[A]} \rightarrow \{\ n: \scala{Int}\ |\ n \ge 0 \}$$
+  
+}
+
+\frame
+{
+  \frametitle{Refinement types}
+  
+  $$A \rightarrow \{\ n: \scala{Int}\ |\ x \ge 0 \} \rightarrow \{\ xs: \scala{List[A]}\ |\ \scala{$xs$.length} = n \ \} $$
+}
+
+\frame
+{
+  \frametitle{Relation with dependent types}
+  
+    Not easy to precisely define either system. One view is that:
+    
+    \begin{itemize}
+        \item With dependent types, types can refer to terms, the calculus is normalizing.
+        \item With refinement types, types don't necessarily need to be able to refer to terms, and the calculus does not need to be normalizing, because proofs are discharged to a \textit{solver}.
+        \item In practice, it is natural to allow refinement types to refer to terms.
+      \end{itemize}
+}
+
+\frame
+{
+  \frametitle{Relation with dependent types, continued}
+  
+ If we restrict ourselves to the view that \emph{dependent types} $\approx$ \emph{Coq} and \emph{refinement types} $\approx$ \emph{LiquidHaskell}, then:
+      \begin{itemize}
+        \item Dependent types are more expressive than refinement types, ie. one can model pretty much any kind of mathematics using dependent types, tactics, and manual proofs.
+        \item Refinement types are more suited for automation, as predicates are drawn from a decidable logic, and proof obligations can thus be discharged to an SMT solver.
+      \end{itemize}
+}
+
+
+\section{Under the hood}
+
+\frame
+{
+  \frametitle{Subtyping}
+  
+  Refinement types rest on the following notion of \emph{subtyping}:
+  
+  
+  $$\Gamma \vdash \{\ x: A\ |\ p\ \} \preceq \{\ y: A\ |\ q\ \}$$
+  $$\Leftrightarrow$$
+  $$Valid\Big(\llbracket\Gamma\rrbracket \wedge \llbracket p \rrbracket \Rightarrow \llbracket q \rrbracket\Big)$$
+  $$\Leftrightarrow$$
+  $$CheckSat\Big(\neg(\llbracket\Gamma\rrbracket \wedge \llbracket p \rrbracket \Rightarrow \llbracket q \rrbracket)\Big) = UNSAT$$
+}
+
+\frame
+{
+  \frametitle{Subtyping (example)}
+
+  $$\{\ \scala{val x: Int = 42\ \}} \vdash \scala{\{ y: Int \| y > x \} $\ \preceq\ $ \{ z: Int \| z > 0 \}}$$
+  $$\Leftrightarrow$$
+  $$Valid\big((x = 42\ \wedge\  y > x\ \wedge\ z = y)\ \Rightarrow\ z > 0)$$
+  $$\Leftrightarrow$$
+  $$CheckSat\Big(\neg((x = 42\ \wedge\  y > x\ \wedge\ z = y)\ \Rightarrow\ z > 0)\Big) = UNSAT$$
+}
+
+\frame
+{
+  \frametitle{Contracts}
+  
+  This function
+  $$\scala{def f(x: Int \{ x > 0 \}): \{ y: Int \| y < 0 \} = 0 - x}$$
+  is correct if
+  $$\{\ \scala{x: Int \| x > 0}\ \}\ \vdash\ \{\ \scala{z: Int \| z = 0 - x}\ \}\ \preceq\ \{\ \scala{y: Int \|\ y < 0}\ \}$$
+  $$\Leftrightarrow$$
+  $$Valid\Big((x > 0\ \wedge\ (z = 0 - x)\ \wedge\ (y = z))\ \Rightarrow\ y < 0 \Big)$$
+}
+
+\frame{
+  \frametitle{Solving constraints with SMT solvers}
+  
+  \begin{itemize}
+    \item Satisfiability Modulo Theories: Akin to a SAT solver with support for additional theories: algebraic data types, integer arithmetic, real arithmetic, bitvectors, sets, etc.
+    \item Can choose from Z3, CVC4, Yices, Princess, and others.
+    \item In practice, cannot just translate from the host language into SMT because of quantifiers, recursive functions, polymorphism, etc.
+    \item Lots of work, difficult to get right (ie. sound and complete).
+  \end{itemize}
+}
+
+\frame
+{
+  \frametitle{Solving constraints with Inox\footnote{\url{https://github.com/epfl-lara/inox}}}
+  
+  \begin{enumerate}
+    \item Solver for higher-order functional programs which provides first-class support for features such as:
+    
+    \begin{enumerate}
+    \item Recursive and first-class functions
+    \item ADTs, integers, bitvectors, strings, set-multiset-map abstractions
+    \item Quantifiers
+     \item ADT invariants
+     \end{enumerate}
+    \item Implements a very involved \textit{unfolding strategy} to deal with all of the above \cite{leon, inox1, inox2}
+     \item Powers Stainless, a verification system for Scala\footnote{\url{https://github.com/epfl-lara/stainless}}
+  \end{enumerate}
+}
+
+\frame
+{
+  \frametitle{Write your own language with refinement types}
+  
+  Demo
+}
+
+\section{In the wild}
+
+\frame
+{
+  \frametitle{LiquidHaskell}
+  
+  \begin{itemize}
+    \item Modern incarnation of refinement types for Haskell, ie. \textit{Liquid types} \cite{liquid}
+    \item Refinement are quantifier-free predicates drawn from a decidable logic. \cite{liquid}
+    \item Type refinement are specified as comments in the source code.
+  \end{itemize}
+}
+
+\frame
+{
+  \frametitle{LiquidHaskell}
+  
+  Demo
+}
+
+\frame
+{
+  \frametitle{$\text{F}^\ast$}
+  
+  \begin{itemize}
+    \item General-purpose dialect of ML with effects aimed at program verification.
+    \item Dependently-typed language with refinements, type checking done via an SMT solver.
+    \item Can be extracted to efficient OCaml, F#, or C code.
+    \item Initially developed at Microsoft Research.
+  \end{itemize}
+}
+
+\frame
+{
+  \frametitle{$\text{F}^\ast$}
+  
+  \begin{itemize}
+  \item Part of \textit{Project Everest}, an in-progress verified implementation of HTTPS, TLS, X.509, and cryptographic algorithms.\footnote{\url{https://project-everest.github.io}}
+  \end{itemize}
+}
+
+\frame
+{
+  \frametitle{Scala 3 (one day?)}
+    \begin{itemize}
+    \item Ongoing effort by Georg Schmid to add refinement types to Dotty/Scala 3\cite{georg}
+    \end{itemize}
+  
+}
+
+\frame
+{
+  \frametitle{Acknowledgement}
+  
+  Many thanks to Georg Schmid for his insights and for taking time to answer my questions.\\
+  \vspace{10pt}
+  Go check out his work! \cite{georg}
+}
+
+\begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center]{title}
+    \usebeamerfont{title}Thanks!\par%
+  \end{beamercolorbox}
+  \vfill
+\end{frame}
+
+\begin{frame}[allowframebreaks]
+  \frametitle{References}
+  \setbeamertemplate{bibliography item}[text]
+  \bibliographystyle{ieeetr}
+  \bibliography{bibliography.bib}
+\end{frame}
+
+\end{document}
